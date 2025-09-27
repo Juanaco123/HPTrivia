@@ -11,6 +11,10 @@ import SwiftUI
 struct ContentView: View {
   @State private var audioPlayer: AVAudioPlayer!
   @State private var animateViewsIn: Bool = false
+  @State private var scalePlayButton: Bool = false
+  @State private var showInstructions: Bool = false
+  @State private var showSettings: Bool = false
+  @State private var showPlayGame: Bool = false
   
   var body: some View {
     GeometryReader { geo in
@@ -45,7 +49,99 @@ struct ContentView: View {
               .transition(.move(edge: .top))
             }
           }
-          .animation(.easeOut(duration: 0.7).delay(2), value: animateViewsIn)
+          .animation(.easeOut(duration: 0.7).delay(2.0), value: animateViewsIn)
+          
+          Spacer()
+          
+          VStack {
+            if animateViewsIn {
+              VStack {
+                Text("Resent Scores")
+                  .font(.title2)
+                
+                Text("33")
+                Text("27")
+                Text("15")
+              }
+              .font(.title3)
+              .foregroundStyle(.white)
+              .padding(.horizontal)
+              .background(.black.opacity(0.7))
+              .clipShape(.rect(cornerRadius:15.0))
+              .transition(.opacity)
+            }
+          }
+          .animation(.linear(duration: 1.0).delay(4.0), value: animateViewsIn)
+          
+          Spacer()
+          
+          HStack {
+            Spacer()
+            
+            VStack {
+              if animateViewsIn {
+                Button {
+                  showInstructions.toggle()
+                } label: {
+                  Image(systemName: "info.circle.fill")
+                    .font(.largeTitle)
+                    .foregroundStyle(.white)
+                    .shadow(radius: 5.0)
+                }
+                .transition(.offset(x: -geo.size.width / 4.0))
+              }
+            }
+            .animation(.easeOut(duration: 0.7).delay(2.7), value: animateViewsIn)
+            
+            Spacer()
+            
+            VStack {
+              if animateViewsIn {
+                Button {
+                  // TODO: Play a game
+                  showPlayGame.toggle()
+                } label: {
+                  Text("Play")
+                    .font(.largeTitle)
+                    .foregroundStyle(.white)
+                    .padding(.vertical, 7)
+                    .padding(.horizontal, 50)
+                    .background(.brown)
+                    .clipShape(.rect(cornerRadius: 7.0))
+                    .shadow(radius: 5.0)
+                    .scaleEffect(scalePlayButton ? 1.2 : 1.0)
+                    .onAppear {
+                      withAnimation(.easeInOut(duration: 1.3).repeatForever()) {
+                        scalePlayButton.toggle()
+                      }
+                    }
+                }
+                .transition(.offset(y: geo.size.height / 3.0))
+              }
+            }
+            .animation(.easeOut(duration: 0.7).delay(2.0), value: animateViewsIn)
+            
+            Spacer()
+            
+            VStack {
+              if animateViewsIn {
+                Button {
+                  showSettings.toggle()
+                } label: {
+                  Image(systemName: "gearshape.fill")
+                    .font(.largeTitle)
+                    .foregroundStyle(.white)
+                    .shadow(radius: 5.0)
+                }
+                .transition(.offset(x: geo.size.width / 4.0))
+              }
+            }
+            .animation(.easeOut(duration: 0.7).delay(2.7), value: animateViewsIn)
+            
+            Spacer()
+          }
+          .frame(width: geo.size.width)
+          
           Spacer()
         }
       }
@@ -54,8 +150,11 @@ struct ContentView: View {
     }
     .ignoresSafeArea()
     .onAppear {
-      animateViewsIn = true
-//      playAudio()
+      animateViewsIn.toggle()
+      //      playAudio()
+    }
+    .sheet(isPresented: $showInstructions) {
+      Instructions()
     }
   }
   
