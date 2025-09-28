@@ -11,6 +11,7 @@ import Foundation
 struct SelectBooks: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(Game.self) private var game
+  @State private var showTempAlert: Bool = false
   
   var body: some View {
     ZStack {
@@ -42,19 +43,49 @@ struct SelectBooks: View {
                     .shadow(radius: 3.0)
                     .padding(3)
                 }
+                .onTapGesture {
+                  game.bookQuestions.changeStatus(of: book.id, to: .inactive)
+                }
+                
               } else if book.status == .inactive {
-                ZStack {
+                ZStack(alignment: .bottomTrailing) {
                   Image(book.image)
                     .resizable()
                     .scaledToFit()
                     .shadow(radius: 7.0)
+                    .overlay {
+                      Rectangle().opacity(0.33)
+                    }
+                  
+                  Image(systemName: "circle")
+                    .font(.largeTitle)
+                    .imageScale(.large)
+                    .foregroundStyle(.green.opacity(0.5))
+                    .shadow(radius: 1.0)
+                    .padding(3)
                 }
+                .onTapGesture {
+                  game.bookQuestions.changeStatus(of: book.id, to: .active)
+                }
+                
               } else {
                 ZStack {
                   Image(book.image)
                     .resizable()
                     .scaledToFit()
                     .shadow(radius: 7.0)
+                    .overlay {
+                      Rectangle().opacity(0.75)
+                    }
+                  
+                  Image(systemName: "lock.fill")
+                    .font(.largeTitle)
+                    .imageScale(.large)
+                    .shadow(color: .white, radius: 2.0)
+                }
+                .onTapGesture {
+                  showTempAlert.toggle()
+                  game.bookQuestions.changeStatus(of: book.id, to: .active)
                 }
               }
             }
@@ -73,6 +104,7 @@ struct SelectBooks: View {
       }
       .foregroundStyle(.black)
     }
+    .alert("You purchase a new question pack!", isPresented: $showTempAlert) {}
   }
 }
 
