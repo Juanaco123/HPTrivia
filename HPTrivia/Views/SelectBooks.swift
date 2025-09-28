@@ -10,6 +10,7 @@ import Foundation
 
 struct SelectBooks: View {
   @Environment(\.dismiss) private var dismiss
+  @Environment(Game.self) private var game
   
   var body: some View {
     ZStack {
@@ -26,8 +27,39 @@ struct SelectBooks: View {
         
         ScrollView {
           LazyVGrid(columns: [GridItem(), GridItem()]) {
-            
+            ForEach(game.bookQuestions.books) { book in
+              if book.status == .active {
+                ZStack(alignment: .bottomTrailing) {
+                  Image(book.image)
+                    .resizable()
+                    .scaledToFit()
+                    .shadow(radius: 7.0)
+                  
+                  Image(systemName: "checkmark.circle.fill")
+                    .font(.largeTitle)
+                    .imageScale(.large)
+                    .foregroundStyle(.green)
+                    .shadow(radius: 3.0)
+                    .padding(3)
+                }
+              } else if book.status == .inactive {
+                ZStack {
+                  Image(book.image)
+                    .resizable()
+                    .scaledToFit()
+                    .shadow(radius: 7.0)
+                }
+              } else {
+                ZStack {
+                  Image(book.image)
+                    .resizable()
+                    .scaledToFit()
+                    .shadow(radius: 7.0)
+                }
+              }
+            }
           }
+          .padding()
         }
         
         Button("Done") {
@@ -46,4 +78,5 @@ struct SelectBooks: View {
 
 #Preview {
   SelectBooks()
+    .environment(Game())
 }
