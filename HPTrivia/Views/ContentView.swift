@@ -47,6 +47,9 @@ struct ContentView: View {
         .onAppear {
           audioPlayer.setVolume(0, fadeDuration: 2)
         }
+        .onDisappear {
+          audioPlayer.setVolume(1, fadeDuration: 3)
+        }
     }
   }
   
