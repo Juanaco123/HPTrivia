@@ -10,7 +10,7 @@ import Foundation
 
 struct PlayButton: View {
   @Binding var animateViewsIn: Bool
-  @State private var showPlayGame: Bool = false
+  @Binding var showPlayGame: Bool
   @State private var scalePlayButton: Bool = false
   
   let geo: GeometryProxy
@@ -19,7 +19,6 @@ struct PlayButton: View {
     VStack {
       if animateViewsIn {
         Button {
-          // TODO: Play a game
           showPlayGame.toggle()
         } label: {
           Text("Play")
@@ -46,6 +45,6 @@ struct PlayButton: View {
 
 #Preview {
   GeometryReader { geo in
-    PlayButton(animateViewsIn: .constant(true), geo: geo)
+    PlayButton(animateViewsIn: .constant(true), showPlayGame: .constant(false), geo: geo)
   }
 }

@@ -11,6 +11,7 @@ import SwiftUI
 struct ContentView: View {
   @State private var audioPlayer: AVAudioPlayer!
   @State private var animateViewsIn: Bool = false
+  @State private var showPlayGame: Bool = false
   
   var body: some View {
     GeometryReader { geo in
@@ -28,7 +29,7 @@ struct ContentView: View {
           
           Spacer()
           
-          ButtonBar(animateViewsIn: $animateViewsIn, geo: geo)
+          ButtonBar(animateViewsIn: $animateViewsIn, showPlayGame: $showPlayGame , geo: geo)
           
           Spacer()
         }
@@ -39,7 +40,13 @@ struct ContentView: View {
     .ignoresSafeArea()
     .onAppear {
       animateViewsIn.toggle()
-      //      playAudio()
+      playAudio()
+    }
+    .fullScreenCover(isPresented: $showPlayGame) {
+      Gameplay()
+        .onAppear {
+          audioPlayer.setVolume(0, fadeDuration: 2)
+        }
     }
   }
   
@@ -50,7 +57,7 @@ struct ContentView: View {
     let sound = Bundle.main.path(forResource: audioTrackName, ofType: "mp3")
     audioPlayer = try! AVAudioPlayer(contentsOf: URL(filePath: sound!))
     audioPlayer.numberOfLoops = infiniteLoop
-    audioPlayer.play()
+//    audioPlayer.play()
   }
 }
 
