@@ -48,16 +48,16 @@ struct SelectBooks: View {
                 
               } else if book.status == .inactive {
                 InactiveBook(book: book)
-                .onTapGesture {
-                  game.bookQuestions.changeStatus(of: book.id, to: .active)
-                }
+                  .onTapGesture {
+                    game.bookQuestions.changeStatus(of: book.id, to: .active)
+                  }
                 
               } else {
                 LockedBook(book: book)
-                .onTapGesture {
-                  showTempAlert.toggle()
-                  game.bookQuestions.changeStatus(of: book.id, to: .active)
-                }
+                  .onTapGesture {
+                    showTempAlert.toggle()
+                    game.bookQuestions.changeStatus(of: book.id, to: .active)
+                  }
               }
             }
           }
