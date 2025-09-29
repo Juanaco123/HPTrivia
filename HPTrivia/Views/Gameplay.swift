@@ -17,6 +17,7 @@ struct Gameplay: View {
   @State private var animateViewsIn: Bool = false
   @State private var revealHint: Bool = false
   @State private var revealBook: Bool = false
+  @State private var tappedCorrectAnswer: Bool = false
   
   var body: some View {
     GeometryReader { geo in
@@ -145,6 +146,52 @@ struct Gameplay: View {
           .padding()
           
           //MARK: - Answers
+          LazyVGrid(columns: [GridItem(), GridItem()]) {
+            ForEach(game.answers, id: \.self) { answer in
+              if answer == game.currentQuestion.answer {
+                VStack {
+                  if animateViewsIn {
+                    Button {
+                      tappedCorrectAnswer.toggle()
+                      playCorrectSound()
+                      game.correct()
+                      
+                    } label: {
+                      Text(answer)
+                        .minimumScaleFactor(0.5)
+                        .multilineTextAlignment(.center)
+                        .padding(10)
+                        .frame(width: geo.size.width / 2.15, height: geo.size.height)
+                        .background(.green.opacity(0.5))
+                        .clipShape(.rect(cornerRadius: 25))
+                    }
+                    .transition(.scale)
+                  }
+                }
+                .animation(.easeOut(duration: 1.0).delay(1.5), value: animateViewsIn)
+              } else {
+                VStack {
+                  if animateViewsIn {
+                    Button {
+                      playWrongSound()
+                      game.questionScore -= 1
+                      
+                    } label: {
+                      Text(answer)
+                        .minimumScaleFactor(0.5)
+                        .multilineTextAlignment(.center)
+                        .padding(10)
+                        .frame(width: geo.size.width / 2.15, height: geo.size.height)
+                        .background(.green.opacity(0.5))
+                        .clipShape(.rect(cornerRadius: 25))
+                    }
+                    .transition(.scale)
+                  }
+                }
+                .animation(.easeOut(duration: 1.0).delay(1.5), value: animateViewsIn)
+              }
+            }
+          }
           
           Spacer()
         }
