@@ -20,6 +20,7 @@ struct Gameplay: View {
   @State private var revealBook: Bool = false
   @State private var tappedCorrectAnswer: Bool = false
   @State private var wrongAnswersTapped: [String] = []
+  @State private var movePointsToScore: Bool = false
   
   var body: some View {
     GeometryReader { geo in
@@ -60,7 +61,7 @@ struct Gameplay: View {
                   .transition(.scale)
               }
             }
-            .animation(.easeInOut(duration: 2.0), value: animateViewsIn)
+            .animation(.easeInOut(duration: animateViewsIn ? 2.0 : .zero), value: animateViewsIn)
             
             Spacer()
             //MARK: - Hints
@@ -99,7 +100,11 @@ struct Gameplay: View {
                     }
                 }
               }
-              .animation(.easeOut(duration: 1.0).delay(2.0), value: animateViewsIn)
+              .animation(
+                .easeOut(duration: animateViewsIn ? 1.5 : .zero)
+                .delay(animateViewsIn ? 2.0 : .zero),
+                value: animateViewsIn
+              )
               
               Spacer()
               
@@ -144,7 +149,11 @@ struct Gameplay: View {
                     }
                 }
               }
-              .animation(.easeOut(duration: 1.0).delay(2.0), value: animateViewsIn)
+              .animation(
+                .easeOut(duration: animateViewsIn ? 1.5 : .zero)
+                .delay(animateViewsIn ? 2.0 : .zero),
+                value: animateViewsIn
+              )
             }
             .padding()
             
@@ -160,7 +169,10 @@ struct Gameplay: View {
                             tappedCorrectAnswer.toggle()
                           }
                           playCorrectSound()
-                          game.correct()
+                          
+                          DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+                            game.correct()
+                          }
                           
                         } label: {
                           Text(answer)
@@ -176,7 +188,11 @@ struct Gameplay: View {
                       }
                     }
                   }
-                  .animation(.easeOut(duration: 1.0).delay(1.5), value: animateViewsIn)
+                  .animation(
+                    .easeOut(duration: animateViewsIn ?  1.0 : .zero)
+                    .delay(animateViewsIn ? 1.5 : .zero),
+                    value: animateViewsIn
+                  )
                 } else {
                   VStack {
                     if animateViewsIn {
@@ -202,7 +218,11 @@ struct Gameplay: View {
                       .disabled(wrongAnswersTapped.contains(answer))
                     }
                   }
-                  .animation(.easeOut(duration: 1.0).delay(1.5), value: animateViewsIn)
+                  .animation(
+                    .easeOut(duration: animateViewsIn ?  1.0 : .zero)
+                    .delay(animateViewsIn ? 1.5 : .zero),
+                    value: animateViewsIn
+                  )
                 }
               }
             }
@@ -224,9 +244,19 @@ struct Gameplay: View {
                 .font(.largeTitle)
                 .padding(.top, 50)
                 .transition(.offset(y: -geo.size.height / 4.0))
+                .offset(
+                  x: movePointsToScore ? geo.size.width / 2.3 : .zero,
+                  y: movePointsToScore ? -geo.size.width / 13 : .zero
+                )
+                .opacity(movePointsToScore ? .zero : 1.0)
+                .onAppear {
+                  withAnimation(.easeInOut(duration: 1.0).delay(3.0)) {
+                    movePointsToScore.toggle()
+                  }
+                }
             }
           }
-          .animation(.easeInOut(duration: 1.0).delay(2), value: tappedCorrectAnswer)
+          .animation(.easeInOut(duration: 1.0).delay(2.0), value: tappedCorrectAnswer)
           
           Spacer()
           
@@ -237,7 +267,11 @@ struct Gameplay: View {
                 .transition(.scale.combined(with: .offset(y: -geo.size.height / 2.0)))
             }
           }
-          .animation(.easeInOut(duration: 1.0).delay(1.0), value: tappedCorrectAnswer)
+          .animation(
+            .easeInOut(duration: tappedCorrectAnswer ? 1.0 : .zero)
+            .delay(tappedCorrectAnswer ? 1.0 : .zero),
+            value: tappedCorrectAnswer
+          )
           .padding(.bottom, 28.0)
           
           Spacer()
@@ -260,15 +294,30 @@ struct Gameplay: View {
           VStack {
             if tappedCorrectAnswer {
               Button("Next Level>") {
+                resetValues()
+                game.newQuestion()
                 
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                  animateViewsIn = true
+                }
               }
               .font(.largeTitle)
               .buttonStyle(.borderedProminent)
               .tint(.blue.opacity(0.5))
               .transition(.offset(y: geo.size.height / 3))
+              .phaseAnimator([false, true]) { content, phase in
+                content
+                  .scaleEffect(phase ? 1.2 : 1.0)
+              } animation: { _ in
+                  .easeInOut(duration: 1.3)
+              }
             }
           }
-          .animation(.easeInOut(duration: 2.7).delay(2.7), value: tappedCorrectAnswer)
+          .animation(
+            .easeInOut(duration:tappedCorrectAnswer ? 2.7 : .zero)
+            .delay(tappedCorrectAnswer ? 2.7 : .zero),
+            value: tappedCorrectAnswer
+          )
           
           Spacer()
           Spacer()
@@ -325,6 +374,15 @@ struct Gameplay: View {
     let sound = Bundle.main.path(forResource: audioTrackName, ofType: "mp3")
     sfxPlayer = try! AVAudioPlayer(contentsOf: URL(filePath: sound!))
     sfxPlayer.play()
+  }
+  
+  private func resetValues() {
+    animateViewsIn = false
+    revealHint = false
+    revealBook = false
+    tappedCorrectAnswer = false
+    wrongAnswersTapped = []
+    movePointsToScore = false
   }
 }
 
