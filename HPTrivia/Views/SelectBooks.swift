@@ -11,7 +11,8 @@ import Foundation
 struct SelectBooks: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(Game.self) private var game
-  @State private var showTempAlert: Bool = false
+  
+  private var store: Store = Store()
   
   var activeBooks: Bool {
     for book in game.bookQuestions.books {
@@ -39,9 +40,12 @@ struct SelectBooks: View {
         ScrollView {
           LazyVGrid(columns: [GridItem(), GridItem()]) {
             ForEach(game.bookQuestions.books) { book in
-              if book.status == .active {
+              if book.status == .active || (book.status == .locked && store.purchased.contains(book.image)) {
                 
                 ActiveBook(book: book)
+                  .task {
+                    game.bookQuestions.changeStatus(of: book.id, to: .active)
+                  }
                   .onTapGesture {
                     game.bookQuestions.changeStatus(of: book.id, to: .inactive)
                   }
@@ -55,8 +59,11 @@ struct SelectBooks: View {
               } else {
                 LockedBook(book: book)
                   .onTapGesture {
-                    showTempAlert.toggle()
-                    game.bookQuestions.changeStatus(of: book.id, to: .active)
+                    let product = store.products[book.id-4]
+                    
+                    Task {
+                      await store.purchase(product)
+                    }
                   }
               }
             }
@@ -69,6 +76,7 @@ struct SelectBooks: View {
             .multilineTextAlignment(.center)
         }
         Button("Done") {
+          game.bookQuestions.saveStatus()
           dismiss()
         }
         .font(.largeTitle)
@@ -80,8 +88,10 @@ struct SelectBooks: View {
       }
       .foregroundStyle(.black)
     }
-    .interactiveDismissDisabled(!activeBooks)
-    .alert("You purchase a new question pack!", isPresented: $showTempAlert) {}
+    .interactiveDismissDisabled()
+    .task {
+      await store.loadProducts()
+    }
   }
 }
 

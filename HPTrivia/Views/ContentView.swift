@@ -60,7 +60,7 @@ struct ContentView: View {
     let sound = Bundle.main.path(forResource: audioTrackName, ofType: "mp3")
     audioPlayer = try! AVAudioPlayer(contentsOf: URL(filePath: sound!))
     audioPlayer.numberOfLoops = infiniteLoop
-//    audioPlayer.play()
+    audioPlayer.play()
   }
 }
 
